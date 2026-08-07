@@ -1,0 +1,24 @@
+{
+  "name": "playwright-framework",
+  "version": "1.0.0",
+  "description": "Playwright + Cucumber BDD Test Automation Framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "cucumber-js",
+    "test:parallel": "cucumber-js --profile parallel"
+  },
+  "keywords": [
+    "playwright",
+    "cucumber",
+    "bdd",
+    "automation"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@cucumber/cucumber": "^10.0.0",
+    "@playwright/test": "^1.44.0",
+    "dotenv": "^16.4.5",
+    "xlsx": "^0.18.5"
+  }
+}
