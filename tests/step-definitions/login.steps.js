@@ -4,7 +4,7 @@ const LoginPage = require('../pages/LoginPage');
 
 Given('user launch browser and enter url', async function () {
   // Browser is already launched and navigated to the base URL
-  // by the Before hook in src/hooks/hooks.js
+  // by the Before hook in tests/hooks/hooks.js
   expect(this.page).toBeTruthy();
 });
 
