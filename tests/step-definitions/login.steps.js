@@ -13,8 +13,6 @@ Then('user is on login page', async function () {
 });
 
 
-const { Given, When, Then } = require('@cucumber/cucumber');
-
 Given('the user launches the browser and enter url', async function () {
 
 });
