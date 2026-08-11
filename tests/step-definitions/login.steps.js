@@ -13,4 +13,41 @@ Then('user is on login page', async function () {
 });
 
 
+const { Given, When, Then } = require('@cucumber/cucumber');
+
+Given('the user launches the browser and enter url', async function () {
+
+});
+
+When('the user is on the SuiteCRM login page', async function () {
+
+});
+
+Then('the user should see the SuiteCRM logo', async function () {
+
+});
+
+Then('the user should see the Username field', async function () {
+
+});
+
+Then('the user should see the Password field', async function () {
+
+});
+
+Then('the user should see the Login button', async function () {
+
+});
+
+When(
+    'the user enters username {string} and password {string} and clicks the Login button',
+    async function (username, password) {
+
+    }
+);
+
+Then('the user should see {string}', async function (expectedResult) {
+
+});
+
 
