@@ -1,59 +1,85 @@
-const { Given, When, Then } = require('@cucumber/cucumber');
-const { expect } = require('@playwright/test');
-const CallsPage = require('../pages/CallsPage');
+import { Given, When, Then } from '@cucumber/cucumber';
+import { expect } from '@playwright/test';
+import { CallsPage } from './CallsPage.js'; // Ensure file extension is added if using ES modules
 
+// Shared variable for the page object across steps
 let callsPage;
 
-// ---- Background ----
-// Given user launch CRM application
-// Given user is logged into SuiteCRM
-
-Given('user launch CRM application', async function () {
-    // Launch/application setup is usually handled in hooks.js
-    // Example:
-    // await this.page.goto('http://localhost/suitecrm');
+Given('the user is on the Calls management module', async function () {
+  // 'this.page' comes from your Cucumber world setup context
+  callsPage = new CallsPage(this.page); 
+  await callsPage.navigateToCallsModule();
 });
 
-Given('user is logged into SuiteCRM', async function () {
-    // Login is usually handled in hooks.js
-    // Example:
-    // await this.page.locator('#user_name').fill('admin');
-    // await this.page.locator('#username_password').fill('password');
-    // await this.page.locator('#bigbutton').click();
+// Scenario 1 & 5: Create Call / Mandatory Fields
+When('the user opens the form to log a new call', async function () {
+  await callsPage.openCreateCallForm();
 });
 
-Given('user navigate to the Calls module', async function () {
-    callsPage = new CallsPage(this.page);
-
-    await callsPage.navigateToCalls();
+When('the user enters {string} as the subject', async function (subjectText) {
+  await callsPage.fillSubject(subjectText);
 });
 
-When('user create call using mandatory fields', async function () {
-    await callsPage.createCallWithMandatoryFields();
+When('the user saves the call entry', async function () {
+  await callsPage.clickSave();
 });
 
-Then('Call name should be display correctly on Call details page', async function () {
-    const callName = await callsPage.getCallNameFromDetailsPage();
-
-    expect(callName).toBe(this.callName);
+Then('the new call record should be successfully created', async function () {
+  await expect(callsPage.page.getByText('Call created successfully')).toBeVisible();
 });
 
-When('user create call using all fields', async function () {
-    this.callName = `Test Call ${Date.now()}`;
-
-    await callsPage.createCallWithAllFields(this.callName);
+// Scenario 2: Redirect to List View
+When('the user redirects to the Calls List View', async function () {
+  await callsPage.openCallsListView();
 });
 
-When('user select cancel button from create call page', async function () {
-    await callsPage.clickCancel();
+Then('the search view should display all existing entries', async function () {
+  await expect(callsPage.page).toHaveURL(/.*view-calls/);
+  await expect(callsPage.page.getByRole('heading', { name: 'All Calls' })).toBeVisible();
 });
 
-Then('user should be redirected to the Calls list view', async function () {
-    await expect(this.page).toHaveURL(/.*Calls.*/);
-
-    // Optional additional validation
-    await expect(
-        this.page.getByText('Calls')
-    ).toBeVisible();
+// Scenario 3: Import Wizard
+When('the user launches the structural Import Wizard', async function () {
+  await callsPage.openImportWizard();
 });
-```
+
+Then('the Import Calls screen should be visible', async function () {
+  await expect(callsPage.page.getByRole('heading', { name: 'Import Wizard' })).toBeVisible();
+});
+
+// Scenario 4: Delete Call
+Given('the user opens an existing call entry', async function () {
+  await callsPage.openCallsListView();
+  await callsPage.page.getByRole('link', { name: 'Existing Call' }).first().click();
+});
+
+When('the user deletes the call entry', async function () {
+  await callsPage.clickDelete();
+});
+
+Then('the call entry should be completely removed', async function () {
+  await expect(callsPage.page.getByText('Call deleted successfully')).toBeVisible();
+});
+
+// Scenario 5: Missing Mandatory Fields Validation Error
+Then('a required fields error alert should appear', async function () {
+  await expect(callsPage.page.getByText('Subject is a required field')).toBeVisible();
+});
+
+// Scenario 6: Duplicate Entry
+When('the user triggers the duplicate feature', async function () {
+  await callsPage.clickDuplicate();
+});
+
+Then('a duplicate call entry record should copy over', async function () {
+  await expect(callsPage.page.getByText('Duplicate Call Created')).toBeVisible();
+});
+
+// Scenario 7: Reschedule Conflict
+When('the user reschedules the call to a conflicting timeframe', async function () {
+  await callsPage.clickReschedule();
+});
+
+Then('a schedule conflict warning should be flagged', async function () {
+  await expect(callsPage.page.getByText('Schedule conflict detected')).toBeVisible();
+});
